@@ -18,3 +18,4 @@ yarn-error.log
 /public/img/bags
 /public/css/app.css
 /public/mix-manifest.json
+update-production.sh

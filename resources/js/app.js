@@ -8,6 +8,17 @@ import PrimeVue from 'primevue/config';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
+const currencyMixin = {
+  methods: {
+    renderCurrency(price) {
+      return (price).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'PHP',
+      });
+    }
+  }
+};
+
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
   resolve: (name) => require(`./Pages/${name}.vue`),
@@ -16,6 +27,7 @@ createInertiaApp({
       .use(plugin)
       .use(PrimeVue)
       .mixin({ methods: { route } })
+      .mixin(currencyMixin)
       .mount(el);
   },
 });

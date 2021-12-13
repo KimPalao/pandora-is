@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Bag wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BagMovement[] $movement
+ * @property-read int|null $movement_count
  */
 class Bag extends Model
 {
@@ -37,5 +39,15 @@ class Bag extends Model
     public function images()
     {
         return $this->hasMany(BagImage::class);
+    }
+
+    public function movement()
+    {
+        return $this->hasMany(BagMovement::class);
+    }
+
+    public function sale()
+    {
+        return $this->hasOne(Sale::class);
     }
 }

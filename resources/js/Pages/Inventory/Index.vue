@@ -20,6 +20,11 @@
                   </template></Column
                 >
                 <Column field="price" header="Price"></Column>
+                <Column field="is_sold" header="Sold?">
+                  <template #body="slotProps">
+                    {{ slotProps.data.is_sold ? "Yes" : "No" }}
+                  </template>
+                </Column>
               </DataTable>
             </div>
           </div>

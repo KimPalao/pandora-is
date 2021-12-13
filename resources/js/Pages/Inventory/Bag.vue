@@ -19,6 +19,12 @@
                 py-5
               "
             >
+              <h5 v-if="bag.is_sold">
+                This bag was sold
+                <span v-if="bag.sale"
+                  >for {{ renderCurrency(bag.sale.price) }}</span
+                >
+              </h5>
               <h4>Images</h4>
               <div class="row mb-5">
                 <div class="col-4" v-for="image in bag.images" :key="image.id">

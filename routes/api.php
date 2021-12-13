@@ -31,5 +31,5 @@ Route::get('/bag/movement/{id}', function ($id) {
     return ['data' => BagMovement::whereBagId($id)->with(['toSite', 'fromSite'])->orderBy('datetime')->get()->all()];
 });
 Route::get('/bag/{id}', function (int $id) {
-    return ['data' => Bag::whereId($id)->with('images')->first()];
+    return ['data' => Bag::whereId($id)->with('images')->with('sale')->first()];
 });
