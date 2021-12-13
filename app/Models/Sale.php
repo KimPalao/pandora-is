@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Sale wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property string $datetime
+ * @method static \Illuminate\Database\Eloquent\Builder|Sale whereDatetime($value)
  */
 class Sale extends Model
 {

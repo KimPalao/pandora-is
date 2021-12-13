@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('/inventory', function (Request $request) {
-    return ['data' => Bag::all()];
+    return ['data' => Bag::with('latestMovement')->get()->all()];
 });
 Route::get('/bag/image/{id}/{index}', function ($id, $index) {
     $image = BagImage::whereBagId($id)->limit(1)->offset($index)->first();
@@ -31,5 +31,5 @@ Route::get('/bag/movement/{id}', function ($id) {
     return ['data' => BagMovement::whereBagId($id)->with(['toSite', 'fromSite'])->orderBy('datetime')->get()->all()];
 });
 Route::get('/bag/{id}', function (int $id) {
-    return ['data' => Bag::whereId($id)->with('images')->with('sale')->first()];
+    return ['data' => Bag::whereId($id)->with('images')->with('sale')->with('latestMovement')->first()];
 });

@@ -25,6 +25,13 @@
                     {{ slotProps.data.is_sold ? "Yes" : "No" }}
                   </template>
                 </Column>
+                <Column field="latest_movement" header="Location">
+                  <template #body="slotProps">
+                    {{
+                      slotProps.data.latest_movement?.to_site?.name ?? "Sold"
+                    }}
+                  </template>
+                </Column>
               </DataTable>
             </div>
           </div>

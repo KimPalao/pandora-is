@@ -31,6 +31,8 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BagMovement[] $movement
  * @property-read int|null $movement_count
+ * @property-read \App\Models\Sale|null $sale
+ * @property-read \App\Models\BagMovement|null $currentSite
  */
 class Bag extends Model
 {
@@ -49,5 +51,11 @@ class Bag extends Model
     public function sale()
     {
         return $this->hasOne(Sale::class);
+    }
+
+    public function latestMovement()
+    {
+        // return $this->belongsToMany(Site::class, 'bag_movements', 'bag_id', 'to')->withPivot('datetime')->latest('bag_movements.datetime');
+        return $this->hasOne(BagMovement::class)->latestOfMany('datetime')->with('toSite');
     }
 }
