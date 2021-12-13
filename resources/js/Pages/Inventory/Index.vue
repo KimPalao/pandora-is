@@ -10,12 +10,16 @@
           <div class="card shadow bg-light">
             <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
               <DataTable :value="bags" responsiveLayout="scroll">
-                <Column
-                  v-for="col of columns"
-                  :field="col.field"
-                  :header="col.header"
-                  :key="col.field"
-                ></Column>
+                <Column field="name" header="Name">
+                  <template #body="slotProps">
+                    <Link
+                      :href="route('bag', slotProps.data.id)"
+                      :active="route().current('bag')"
+                      >{{ slotProps.data.name }}</Link
+                    >
+                  </template></Column
+                >
+                <Column field="price" header="Price"></Column>
               </DataTable>
             </div>
           </div>
@@ -31,12 +35,14 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import axios from "axios";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import { Link } from "@inertiajs/inertia-vue3";
 
 export default defineComponent({
   components: {
     AppLayout,
     DataTable,
     Column,
+    Link,
   },
   data() {
     return {

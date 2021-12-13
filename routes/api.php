@@ -28,5 +28,8 @@ Route::get('/bag/image/{id}/{index}', function ($id, $index) {
     return response()->file(public_path($image->file_name));
 });
 Route::get('/bag/movement/{id}', function ($id) {
-    return ['data' => BagMovement::whereBagId($id)->orderBy('datetime')->get()->all()];
+    return ['data' => BagMovement::whereBagId($id)->with(['toSite', 'fromSite'])->orderBy('datetime')->get()->all()];
+});
+Route::get('/bag/{id}', function (int $id) {
+    return ['data' => Bag::whereId($id)->first()];
 });

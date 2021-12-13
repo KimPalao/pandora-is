@@ -1,0 +1,65 @@
+<template>
+  <app-layout title="Inventory">
+    <template #header>
+      <h2 class="h4 font-weight-bold">Bag {{ bag.name || bag_id }}</h2>
+    </template>
+
+    <div class="container my-5">
+      <div class="row justify-content-center my-5">
+        <div class="col-md-12">
+          <div class="card shadow bg-light">
+            <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
+              <h4>Log</h4>
+              <p v-for="m in movement" :key="`movement-${m.id}`">
+                <span>{{ m.datetime }}</span> |
+                <span v-if="m.from_site">{{ m.from_site.name }}</span>
+                <span v-else>Obtained</span>
+                -
+                <span v-if="m.to_site">{{ m.to_site.name }}</span>
+                <span v-else>Sold</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-layout>
+</template>
+
+<script>
+import { defineComponent } from "vue";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import axios from "axios";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+
+export default defineComponent({
+  components: {
+    AppLayout,
+    DataTable,
+    Column,
+  },
+  props: {
+    bag_id: Number,
+  },
+  data() {
+    return {
+      bag: {},
+      movement: [],
+    };
+  },
+  methods: {
+    async get_data() {
+      let [bag, movement] = await Promise.all([
+        axios.get(`/api/bag/${this.bag_id}`),
+        axios.get(`/api/bag/movement/${this.bag_id}`),
+      ]);
+      this.bag = bag.data.data;
+      this.movement = movement.data.data;
+    },
+  },
+  mounted() {
+    this.get_data();
+  },
+});
+</script>
