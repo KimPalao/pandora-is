@@ -30,9 +30,26 @@
                   </template></Column
                 >
                 <Column field="price" header="Price"></Column>
-                <Column field="is_sold" header="Sold?">
+                <Column
+                  field="is_sold"
+                  header="Sold?"
+                  :showFilterMatchModes="false"
+                >
                   <template #body="slotProps">
                     {{ slotProps.data.is_sold ? "Yes" : "No" }}
+                  </template>
+                  <template #filter="{ filterModel }">
+                    <Dropdown
+                      v-model="filterModel.value"
+                      :options="[
+                        { value: 1, label: 'Yes' },
+                        { value: 0, label: 'No' },
+                      ]"
+                      optionValue="value"
+                      optionLabel="label"
+                      :showClear="true"
+                      placeholder="Select an option"
+                    />
                   </template>
                 </Column>
                 <Column
@@ -83,8 +100,9 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import MultiSelect from "primevue/multiselect";
 import { Link } from "@inertiajs/inertia-vue3";
-import { FilterService } from "primevue/api";
+import { FilterService, FilterMatchMode } from "primevue/api";
 import { ObjectUtils } from "primevue/utils";
+import Dropdown from "primevue/dropdown";
 
 FilterService.register("InOrNull", (value, filter) => {
   if (filter === undefined || filter === null || filter.length === 0) {
@@ -110,6 +128,7 @@ export default defineComponent({
     Column,
     Link,
     MultiSelect,
+    Dropdown,
   },
   data() {
     return {
@@ -130,6 +149,7 @@ export default defineComponent({
           value: null,
           matchMode: "InOrNull",
         },
+        is_sold: { value: null, matchMode: FilterMatchMode.EQUALS },
       },
     };
   },
