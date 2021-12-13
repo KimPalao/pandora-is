@@ -29,7 +29,11 @@
                     >
                   </template></Column
                 >
-                <Column field="price" header="Price"></Column>
+                <Column field="price" header="Price">
+                  <template #body="slotProps">
+                    {{ renderCurrency(slotProps.data.price) }}
+                  </template>
+                </Column>
                 <Column
                   field="is_sold"
                   header="Sold?"
