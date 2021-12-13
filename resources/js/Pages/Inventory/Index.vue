@@ -9,7 +9,15 @@
         <div class="col-md-12">
           <div class="card shadow bg-light">
             <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
-              <DataTable :value="bags" responsiveLayout="scroll">
+              <DataTable
+                :value="bags"
+                responsiveLayout="scroll"
+                :paginator="true"
+                :rows="10"
+                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                :rowsPerPageOptions="[10, 20, 50]"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+              >
                 <Column field="name" header="Name">
                   <template #body="slotProps">
                     <Link
