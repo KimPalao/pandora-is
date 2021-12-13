@@ -3,6 +3,7 @@
 use App\Models\Bag;
 use App\Models\BagImage;
 use App\Models\BagMovement;
+use App\Models\Site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,4 +33,7 @@ Route::get('/bag/movement/{id}', function ($id) {
 });
 Route::get('/bag/{id}', function (int $id) {
     return ['data' => Bag::whereId($id)->with('images')->with('sale')->with('latestMovement')->first()];
+});
+Route::get('/sites', function () {
+    return ['data' => Site::all()];
 });

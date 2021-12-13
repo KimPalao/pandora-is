@@ -17,6 +17,8 @@
                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
                 :rowsPerPageOptions="[10, 20, 50]"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+                v-model:filters="filters"
+                filterDisplay="menu"
               >
                 <Column field="name" header="Name">
                   <template #body="slotProps">
@@ -33,11 +35,35 @@
                     {{ slotProps.data.is_sold ? "Yes" : "No" }}
                   </template>
                 </Column>
-                <Column field="latest_movement" header="Location">
+                <Column
+                  field="latest_movement"
+                  header="Location"
+                  filterField="latest_movement.to_site"
+                  :showFilterMatchModes="false"
+                  :filterMenuStyle="{ width: '14rem' }"
+                >
                   <template #body="slotProps">
                     {{
                       slotProps.data.latest_movement?.to_site?.name ?? "Sold"
                     }}
+                  </template>
+                  <template #filter="{ filterModel }">
+                    <div class="p-mb-3 p-text-bold">Site</div>
+                    <MultiSelect
+                      v-model="filterModel.value"
+                      :options="sites"
+                      optionLabel="name"
+                      placeholder="Any"
+                      class="p-column-filter"
+                    >
+                      <template #option="slotProps">
+                        <div class="p-multiselect-representative-option">
+                          <span class="image-text">{{
+                            slotProps.option.name
+                          }}</span>
+                        </div>
+                      </template>
+                    </MultiSelect>
                   </template>
                 </Column>
               </DataTable>
@@ -55,7 +81,27 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import axios from "axios";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import MultiSelect from "primevue/multiselect";
 import { Link } from "@inertiajs/inertia-vue3";
+import { FilterService } from "primevue/api";
+import { ObjectUtils } from "primevue/utils";
+
+FilterService.register("InOrNull", (value, filter) => {
+  if (filter === undefined || filter === null || filter.length === 0) {
+    return true;
+  }
+
+  for (let i = 0; i < filter.length; i++) {
+    if (ObjectUtils.equals(value, filter[i])) {
+      return true;
+    }
+    if (filter[i]?.id === null && value === null) {
+      return true;
+    }
+  }
+
+  return false;
+});
 
 export default defineComponent({
   components: {
@@ -63,10 +109,12 @@ export default defineComponent({
     DataTable,
     Column,
     Link,
+    MultiSelect,
   },
   data() {
     return {
       bags: [],
+      sites: [],
       columns: [
         {
           field: "name",
@@ -77,11 +125,22 @@ export default defineComponent({
           header: "Price",
         },
       ],
+      filters: {
+        "latest_movement.to_site": {
+          value: null,
+          matchMode: "InOrNull",
+        },
+      },
     };
   },
   async mounted() {
-    const response = await axios.get("/api/inventory");
-    this.bags = response.data.data;
+    const [bags, sites] = await Promise.all([
+      axios.get("/api/inventory"),
+      axios.get("/api/sites"),
+    ]);
+    this.bags = bags.data.data;
+    this.sites = sites.data.data;
+    this.sites.push({ id: null, name: "Sold" });
   },
 });
 </script>
