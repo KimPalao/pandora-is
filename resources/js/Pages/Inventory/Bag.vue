@@ -8,7 +8,27 @@
       <div class="row justify-content-center my-5">
         <div class="col-md-12">
           <div class="card shadow bg-light">
-            <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
+            <div
+              class="
+                card-body
+                bg-white
+                px-5
+                py-3
+                border-bottom
+                rounded-top
+                py-5
+              "
+            >
+              <h4>Images</h4>
+              <div class="row mb-5">
+                <div class="col-4" v-for="image in bag.images" :key="image.id">
+                  <img
+                    :src="`/${image.file_name}`"
+                    class="img-thumbnail"
+                    alt="..."
+                  />
+                </div>
+              </div>
               <h4>Log</h4>
               <p v-for="m in movement" :key="`movement-${m.id}`">
                 <span>{{ m.datetime }}</span> |
@@ -30,14 +50,12 @@
 import { defineComponent } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import axios from "axios";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
+import Carousel from "primevue/carousel";
 
 export default defineComponent({
   components: {
     AppLayout,
-    DataTable,
-    Column,
+    Carousel,
   },
   props: {
     bag_id: Number,
