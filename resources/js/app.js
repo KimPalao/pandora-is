@@ -5,6 +5,7 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/inertia-vue3';
 import { InertiaProgress } from '@inertiajs/progress';
 import PrimeVue from 'primevue/config';
+import { DateTime } from "luxon";
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -19,20 +20,16 @@ const currencyMixin = {
   }
 };
 
-const bootstrapMixin = {
-  data() {
-    return {
-      modals: {},
-    };
-  },
+const datetimeMixin = {
   methods: {
-    open_modal(name) {
-      if (!(name in this.modals))
-        this.modals[name] = new bootstrap.Modal(this.$refs[name]);
-      this.modals[name].show();
+    datetimeToLocal(datetime) {
+      return DateTime.fromISO(datetime.toISOString()).toFormat(
+        "yyyy-MM-dd HH:mm:ss"
+      );
     }
   }
 };
+
 
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
@@ -43,7 +40,7 @@ createInertiaApp({
       .use(PrimeVue)
       .mixin({ methods: { route } })
       .mixin(currencyMixin)
-      .mixin(bootstrapMixin)
+      .mixin(datetimeMixin)
       .mount(el);
   },
 });

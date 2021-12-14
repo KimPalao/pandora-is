@@ -77,3 +77,38 @@ Route::put('/bag/{bag_id}/movement', function (Request $request, int $bag_id) {
         ], 500);
     }
 });
+Route::post('/bag', function (Request $request) {
+    try {
+        return DB::transaction(function () use ($request) {
+            $name = $request->input('name');
+            $price = $request->input('price');
+            $date_obtained = $request->input('date_obtained');
+            $initial_site = $request->input('initial_site');
+
+            $bag = new Bag();
+            $bag->name = $name;
+            $bag->price = $price;
+            $bag->date_obtained = $date_obtained;
+            $bag->save();
+
+            $bag_movement = new BagMovement();
+            $bag_movement->bag_id = $bag->id;
+            $bag_movement->to = $initial_site;
+            $bag_movement->datetime = $date_obtained;
+            $bag_movement->save();
+
+            $images = $request->file('images');
+            foreach ($images as $index => $image) {
+                $path = $image->storeAs('img/bags', "bag-{$index}-{$bag->id}."  . $image->getClientOriginalExtension(), 'public');
+                $bag_image = new BagImage();
+                $bag_image->name = "{$bag->name} {$index}";
+                $bag_image->file_name = $path;
+                $bag_image->bag_id = $bag->id;
+                $bag_image->save();
+            }
+        });
+    } catch (Exception $e) {
+        Log::error($e);
+        return response()->json(['message' => 'There was an error'], 500);
+    }
+});

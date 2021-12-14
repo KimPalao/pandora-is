@@ -1,7 +1,18 @@
 <template>
   <app-layout title="Inventory">
     <template #header>
-      <h2 class="h4 font-weight-bold">Inventory</h2>
+      <div class="row">
+        <div class="col">
+          <h2 class="h4 font-weight-bold">Inventory</h2>
+        </div>
+        <div class="col-auto">
+          <div class="col-auto">
+            <button class="btn btn-info" @click="new_bag_form_visible = true">
+              New Bag
+            </button>
+          </div>
+        </div>
+      </div>
     </template>
 
     <div class="container my-5">
@@ -93,6 +104,84 @@
         </div>
       </div>
     </div>
+
+    <Dialog
+      v-model:visible="new_bag_form_visible"
+      :modal="true"
+      :breakpoints="{ '2000px': '75vw', '640px': '100vw' }"
+    >
+      <template #header>
+        <h3>New Bag</h3>
+      </template>
+      <form @submit.prevent="new_bag_submit">
+        <div class="row">
+          <div class="col">
+            <InputText
+              type="text"
+              v-model="new_bag_form.name"
+              placeholder="Name"
+              :disabled="submitting"
+              required
+            />
+          </div>
+          <div class="col">
+            <InputNumber
+              v-model="new_bag_form.price"
+              mode="currency"
+              currency="PHP"
+              locale="en-US"
+              placeholder="Sale Price"
+              :disabled="submitting"
+              required
+            />
+          </div>
+          <div class="col">
+            <Calendar
+              v-model="new_bag_form.date_obtained"
+              :showTime="true"
+              class="w-100"
+              placeholder="Time"
+              :disabled="submitting"
+              required
+            />
+          </div>
+          <div class="col">
+            <Dropdown
+              v-model="new_bag_form.initial_site"
+              :options="sites"
+              optionValue="id"
+              optionLabel="name"
+              placeholder="Initial Location"
+              class="w-100"
+              :disabled="submitting"
+              required
+            />
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col">
+            <input
+              class="form-control"
+              type="file"
+              multiple
+              ref="images"
+              @change="new_bag_images = $event.target.files"
+            />
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-auto ms-auto">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="submitting"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </Dialog>
   </app-layout>
 </template>
 
@@ -107,6 +196,11 @@ import { Link } from "@inertiajs/inertia-vue3";
 import { FilterService, FilterMatchMode } from "primevue/api";
 import { ObjectUtils } from "primevue/utils";
 import Dropdown from "primevue/dropdown";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import Calendar from "primevue/calendar";
+import FileUpload from "primevue/fileupload";
 
 FilterService.register("InOrNull", (value, filter) => {
   if (filter === undefined || filter === null || filter.length === 0) {
@@ -133,6 +227,11 @@ export default defineComponent({
     Link,
     MultiSelect,
     Dropdown,
+    Dialog,
+    InputText,
+    InputNumber,
+    Calendar,
+    FileUpload,
   },
   data() {
     return {
@@ -155,16 +254,63 @@ export default defineComponent({
         },
         is_sold: { value: null, matchMode: FilterMatchMode.EQUALS },
       },
+
+      // new bag form
+      new_bag_form_visible: false,
+      new_bag_form: {
+        name: "",
+        price: null,
+        date_obtained: null,
+        initial_site: null,
+      },
+      new_bag_images: [],
+      submitting: false,
     };
   },
-  async mounted() {
-    const [bags, sites] = await Promise.all([
-      axios.get("/api/inventory"),
-      axios.get("/api/sites"),
-    ]);
-    this.bags = bags.data.data;
-    this.sites = sites.data.data;
-    this.sites.push({ id: null, name: "Sold" });
+  methods: {
+    async new_bag_submit() {
+      try {
+        this.submitting = true;
+        const form_data = new FormData();
+        form_data.append("name", this.new_bag_form.name);
+        form_data.append("price", this.new_bag_form.price);
+        form_data.append(
+          "date_obtained",
+          this.datetimeToLocal(this.new_bag_form.date_obtained)
+        );
+        form_data.append("initial_site", this.new_bag_form.initial_site);
+        for (let image of this.new_bag_images) {
+          form_data.append("images[]", image);
+        }
+        const response = await axios.post(`/api/bag`, form_data, {
+          headers: {
+            "content-type": "multipart/form-data",
+          },
+        });
+        this.get_data();
+        this.movement_form_visible = false;
+        this.movement_form.to = null;
+        this.movement_form.datetime = null;
+        const id = response.data.id;
+        this.get_data();
+      } catch (e) {
+        console.log(e);
+      } finally {
+        this.submitting = false;
+      }
+    },
+    async get_data() {
+      const [bags, sites] = await Promise.all([
+        axios.get("/api/inventory"),
+        axios.get("/api/sites"),
+      ]);
+      this.bags = bags.data.data;
+      this.sites = sites.data.data;
+      this.sites.push({ id: null, name: "Sold" });
+    },
+  },
+  mounted() {
+    this.get_data();
   },
 });
 </script>
