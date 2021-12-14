@@ -13,11 +13,12 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/public/img/bags
 /public/js/app.js
 /public/js/app.js.LICENSE.txt
-/public/img/bags
 /public/css/app.css
 /public/mix-manifest.json
 /public/fonts/vendor/primeicons/*
 /public/images/vendor/primevue/*
+/storage/app/public/img/bags
 update-production.sh
