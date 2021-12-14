@@ -94,6 +94,7 @@
               "
               placeholder="New Location"
               class="w-100"
+              :disabled="submitting"
             />
           </div>
           <div class="col-4">
@@ -104,6 +105,7 @@
               placeholder="Time"
               :minDate="minimum_movement_time"
               :maxDate="new Date()"
+              :disabled="submitting"
             />
           </div>
           <div class="col-4" v-show="movement_form.to === 0">
@@ -113,12 +115,19 @@
               currency="PHP"
               locale="en-US"
               placeholder="Sale Price"
+              :disabled="submitting"
             />
           </div>
         </div>
         <div class="row">
           <div class="col-auto ms-auto">
-            <button class="btn btn-primary" type="submit">Submit</button>
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="submitting"
+            >
+              Submit
+            </button>
           </div>
         </div>
       </form>
@@ -157,6 +166,7 @@ export default defineComponent({
       movement: [],
       sites: [],
 
+      submitting: false,
       movement_form_visible: false,
       movement_form: {
         to: null,
@@ -200,11 +210,20 @@ export default defineComponent({
       this.sites = sites.data.data;
     },
     async update_bag_movement() {
-      const response = await axios.put(
-        `/api/bag/${this.bag_id}/movement`,
-        this.movement_form_data
-      );
-      this.get_data();
+      try {
+        this.submitting = true;
+        const response = await axios.put(
+          `/api/bag/${this.bag_id}/movement`,
+          this.movement_form_data
+        );
+        this.get_data();
+        this.movement_form_visible = false;
+        this.movement_form.to = null;
+        this.movement_form.datetime = null;
+      } catch (e) {
+      } finally {
+        this.submitting = false;
+      }
     },
   },
   mounted() {
