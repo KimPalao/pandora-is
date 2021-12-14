@@ -112,3 +112,9 @@ Route::post('/bag', function (Request $request) {
         return response()->json(['message' => 'There was an error'], 500);
     }
 });
+// Get all bags in a site
+Route::get('/site/{id}/bags', function ($id) {
+    return ['data' => Bag::whereHas('latestMovement', function ($query) use ($id) {
+        return $query->where('to', $id);
+    })->get()];
+});

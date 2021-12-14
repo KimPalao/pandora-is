@@ -44,6 +44,12 @@
             >
               Inventory
             </jet-nav-link>
+            <jet-nav-link
+              :href="route('audit')"
+              :active="route().current('audit')"
+            >
+              Audit
+            </jet-nav-link>
           </ul>
 
           <!-- Right Side Of Navbar -->
