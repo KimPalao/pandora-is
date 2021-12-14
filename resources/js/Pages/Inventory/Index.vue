@@ -30,8 +30,9 @@
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
                 v-model:filters="filters"
                 filterDisplay="menu"
+                sortMode="multiple"
               >
-                <Column field="name" header="Name">
+                <Column field="name" header="Name" sortable>
                   <template #body="slotProps">
                     <Link
                       :href="route('bag', slotProps.data.id)"
@@ -40,7 +41,7 @@
                     >
                   </template></Column
                 >
-                <Column field="price" header="Price">
+                <Column field="price" header="Price" sortable>
                   <template #body="slotProps">
                     {{ renderCurrency(slotProps.data.price) }}
                   </template>
@@ -68,11 +69,12 @@
                   </template>
                 </Column>
                 <Column
-                  field="latest_movement"
+                  field="latest_movement.to_site.name"
                   header="Location"
                   filterField="latest_movement.to_site"
                   :showFilterMatchModes="false"
                   :filterMenuStyle="{ width: '14rem' }"
+                  sortable
                 >
                   <template #body="slotProps">
                     {{
