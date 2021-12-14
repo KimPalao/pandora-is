@@ -87,6 +87,11 @@
               :options="site_options"
               optionValue="id"
               optionLabel="name"
+              :optionDisabled="
+                (option) => {
+                  return option.id === last_site;
+                }
+              "
               placeholder="New Location"
               class="w-100"
             />
@@ -97,6 +102,8 @@
               :showTime="true"
               class="w-100"
               placeholder="Time"
+              :minDate="minimum_movement_time"
+              :maxDate="new Date()"
             />
           </div>
           <div class="col-4" v-show="movement_form.to === 0">
@@ -169,6 +176,15 @@ export default defineComponent({
           "yyyy-MM-dd HH:mm:ss"
         );
       return data;
+    },
+    minimum_movement_time() {
+      // No movement yet
+      if (!this.movement.length) return new Date(0, 0, 0, 0, 0, 0);
+      return new Date(this.movement[this.movement.length - 1].datetime);
+    },
+    last_site() {
+      if (!this.movement.length) return 0;
+      return this.movement[this.movement.length - 1].to_site?.id;
     },
   },
   methods: {
