@@ -37,3 +37,17 @@ Route::get('/bag/{id}', function (int $id) {
 Route::get('/sites', function () {
     return ['data' => Site::all()];
 });
+Route::put('/bag/{bag_id}/movement', function (Request $request, $bag_id) {
+    $site_id = $request->input('to');
+    $datetime = $request->input('datetime');
+    $bag = Bag::whereId($bag_id)->first();
+    $last_site = $bag->latestMovement->toSite()->first();
+    $movement = new BagMovement();
+    $movement->to = $site_id;
+    $movement->from = $last_site->id;
+    $movement->bag_id = $bag_id;
+    $movement->datetime = $datetime;
+    if ($movement->save()) {
+        return ['id' => $movement->id];
+    }
+});

@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $movement_count
  * @property-read \App\Models\Sale|null $sale
  * @property-read \App\Models\BagMovement|null $currentSite
+ * @property string|null $barcode
+ * @property-read \App\Models\BagMovement|null $latestMovement
+ * @method static \Illuminate\Database\Eloquent\Builder|Bag whereBarcode($value)
  */
 class Bag extends Model
 {
@@ -55,7 +58,6 @@ class Bag extends Model
 
     public function latestMovement()
     {
-        // return $this->belongsToMany(Site::class, 'bag_movements', 'bag_id', 'to')->withPivot('datetime')->latest('bag_movements.datetime');
         return $this->hasOne(BagMovement::class)->latestOfMany('datetime')->with('toSite');
     }
 }

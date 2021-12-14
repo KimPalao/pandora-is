@@ -113,6 +113,7 @@ import Dropdown from "primevue/dropdown";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import Calendar from "primevue/calendar";
+import { DateTime } from "luxon";
 
 export default defineComponent({
   components: {
@@ -133,12 +134,23 @@ export default defineComponent({
       sites: [],
 
       movement_form_visible: false,
-      movement_form: {},
+      movement_form: {
+        to: null,
+        datetime: null,
+      },
     };
   },
   computed: {
     site_options() {
       return this.sites;
+    },
+    movement_form_data() {
+      const data = { ...this.movement_form };
+      if (data.datetime)
+        data.datetime = DateTime.fromISO(data.datetime.toISOString()).toFormat(
+          "yyyy-MM-dd HH:mm:ss"
+        );
+      return data;
     },
   },
   methods: {
@@ -152,7 +164,13 @@ export default defineComponent({
       this.movement = movement.data.data;
       this.sites = sites.data.data;
     },
-    async update_bag_movement() {},
+    async update_bag_movement() {
+      const response = await axios.put(
+        `/api/bag/${this.bag_id}/movement`,
+        this.movement_form_data
+      );
+      this.get_data();
+    },
   },
   mounted() {
     this.get_data();
