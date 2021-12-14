@@ -118,3 +118,11 @@ Route::get('/site/{id}/bags', function ($id) {
         return $query->where('to', $id);
     })->get()];
 });
+Route::post('/bag/barcodes', function (Request $request) {
+    $bags = Bag::all()->whereIn('barcode', $request->input('barcodes'));
+    $bag_map = [];
+    foreach ($bags as $bag) {
+        $bag_map[$bag->barcode] = $bag;
+    }
+    return ['data' => $bag_map];
+});

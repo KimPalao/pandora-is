@@ -71,6 +71,7 @@
                       :key="`unexpected-bag-${barcode}`"
                     >
                       {{ barcode }}
+                      ({{ requested_barcode_bags[barcode]?.name || "Unknown" }})
                     </li>
                   </ul>
                 </div>
@@ -78,10 +79,7 @@
 
               <div class="row mt-5">
                 <div class="col d-grid">
-                  <button
-                    class="btn btn-primary text-white"
-                    @click="show_results = true"
-                  >
+                  <button class="btn btn-primary text-white" @click="audit">
                     Audit
                   </button>
                 </div>
@@ -129,6 +127,7 @@ export default defineComponent({
       site_selected_bags_map: {},
       show_results: false,
       on_site_barcodes: "",
+      requested_barcode_bags: {},
     };
   },
   computed: {
@@ -147,7 +146,6 @@ export default defineComponent({
     expected_bags() {
       const bags = [];
       for (let barcode in this.site_selected_bags_map) {
-        console.log("expected_bags", barcode);
         if (!(barcode in this.on_site_barcodes_map)) {
           bags.push(this.site_selected_bags_map[barcode]);
         }
@@ -157,12 +155,17 @@ export default defineComponent({
     unexpected_bags() {
       const bags = [];
       for (let barcode in this.on_site_barcodes_map) {
-        console.log("unexpected_bags", barcode);
         if (!(barcode in this.site_selected_bags_map)) {
           bags.push(barcode);
         }
       }
       return bags;
+    },
+    on_site_barcodes_commas() {
+      return this.on_site_barcodes
+        .split("\n")
+        .filter((x) => x !== "")
+        .join(",");
     },
   },
   methods: {
@@ -176,6 +179,13 @@ export default defineComponent({
       for (let bag of this.site_selected_bags) {
         this.site_selected_bags_map[bag.barcode] = bag;
       }
+    },
+    async audit() {
+      this.show_results = true;
+      const response = await axios.post("/api/bag/barcodes", {
+        barcodes: this.unexpected_bags,
+      });
+      this.requested_barcode_bags = response.data.data;
     },
   },
   mounted() {
