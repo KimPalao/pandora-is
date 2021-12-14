@@ -19,6 +19,21 @@ const currencyMixin = {
   }
 };
 
+const bootstrapMixin = {
+  data() {
+    return {
+      modals: {},
+    };
+  },
+  methods: {
+    open_modal(name) {
+      if (!(name in this.modals))
+        this.modals[name] = new bootstrap.Modal(this.$refs[name]);
+      this.modals[name].show();
+    }
+  }
+};
+
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
   resolve: (name) => require(`./Pages/${name}.vue`),
@@ -28,6 +43,7 @@ createInertiaApp({
       .use(PrimeVue)
       .mixin({ methods: { route } })
       .mixin(currencyMixin)
+      .mixin(bootstrapMixin)
       .mount(el);
   },
 });

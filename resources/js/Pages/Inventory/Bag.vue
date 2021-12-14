@@ -1,7 +1,16 @@
 <template>
   <app-layout title="Inventory">
     <template #header>
-      <h2 class="h4 font-weight-bold">Bag {{ bag.name || bag_id }}</h2>
+      <div class="row">
+        <div class="col">
+          <h2 class="h4 font-weight-bold">Bag {{ bag.name || bag_id }}</h2>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-info" @click="movement_form_visible = true">
+            Update
+          </button>
+        </div>
+      </div>
     </template>
 
     <div class="container my-5">
@@ -53,6 +62,45 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal -->
+    <Dialog
+      v-model:visible="movement_form_visible"
+      :modal="true"
+      :breakpoints="{ '2000px': '75vw', '640px': '100vw' }"
+    >
+      <template #header>
+        <h3>Update Activity</h3>
+      </template>
+      <form @submit.prevent="update_bag_movement">
+        <div class="row">
+          <div class="col-4">
+            <Dropdown
+              v-model="movement_form.to"
+              :options="site_options"
+              optionValue="id"
+              optionLabel="name"
+              placeholder="New Location"
+              class="w-100"
+            />
+          </div>
+          <div class="col-4">
+            <Calendar
+              v-model="movement_form.datetime"
+              :showTime="true"
+              class="w-100"
+              placeholder="Time"
+            />
+          </div>
+          <div class="col-4"></div>
+        </div>
+        <div class="row">
+          <div class="col-auto ms-auto">
+            <button class="btn btn-primary" type="submit">Submit</button>
+          </div>
+        </div>
+      </form>
+    </Dialog>
   </app-layout>
 </template>
 
@@ -61,11 +109,19 @@ import { defineComponent } from "vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import axios from "axios";
 import Carousel from "primevue/carousel";
+import Dropdown from "primevue/dropdown";
+import Dialog from "primevue/dialog";
+import Button from "primevue/button";
+import Calendar from "primevue/calendar";
 
 export default defineComponent({
   components: {
     AppLayout,
     Carousel,
+    Dropdown,
+    Dialog,
+    Button,
+    Calendar,
   },
   props: {
     bag_id: Number,
@@ -74,17 +130,29 @@ export default defineComponent({
     return {
       bag: {},
       movement: [],
+      sites: [],
+
+      movement_form_visible: false,
+      movement_form: {},
     };
+  },
+  computed: {
+    site_options() {
+      return this.sites;
+    },
   },
   methods: {
     async get_data() {
-      let [bag, movement] = await Promise.all([
+      let [bag, movement, sites] = await Promise.all([
         axios.get(`/api/bag/${this.bag_id}`),
         axios.get(`/api/bag/movement/${this.bag_id}`),
+        axios.get(`/api/sites`),
       ]);
       this.bag = bag.data.data;
       this.movement = movement.data.data;
+      this.sites = sites.data.data;
     },
+    async update_bag_movement() {},
   },
   mounted() {
     this.get_data();
