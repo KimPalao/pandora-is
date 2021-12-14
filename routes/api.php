@@ -3,8 +3,11 @@
 use App\Models\Bag;
 use App\Models\BagImage;
 use App\Models\BagMovement;
+use App\Models\Sale;
 use App\Models\Site;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,17 +40,40 @@ Route::get('/bag/{id}', function (int $id) {
 Route::get('/sites', function () {
     return ['data' => Site::all()];
 });
-Route::put('/bag/{bag_id}/movement', function (Request $request, $bag_id) {
-    $site_id = $request->input('to');
-    $datetime = $request->input('datetime');
-    $bag = Bag::whereId($bag_id)->first();
-    $last_site = $bag->latestMovement->toSite()->first();
-    $movement = new BagMovement();
-    $movement->to = $site_id;
-    $movement->from = $last_site->id;
-    $movement->bag_id = $bag_id;
-    $movement->datetime = $datetime;
-    if ($movement->save()) {
-        return ['id' => $movement->id];
+Route::put('/bag/{bag_id}/movement', function (Request $request, int $bag_id) {
+    try {
+        return DB::transaction(function () use ($request, $bag_id) {
+            $site_id = $request->input('to');
+            if ($site_id === 0) {
+                $site_id = null;
+            }
+            $datetime = $request->input('datetime');
+            $bag = Bag::whereId($bag_id)->first();
+            $last_site = $bag->latestMovement->toSite()->first();
+            $movement = new BagMovement();
+            $movement->to = $site_id;
+            $movement->from = $last_site->id;
+            $movement->bag_id = $bag_id;
+            $movement->datetime = $datetime;
+            $movement->save();
+
+            if (is_null($movement->to)) {
+                $sale = new Sale();
+                $sale->price = $request->input('price');
+                $sale->bag_id = $bag_id;
+                $sale->datetime = $datetime;
+                $sale->save();
+
+                $bag->is_sold = true;
+                $bag->save();
+            }
+
+            return ['id' => $movement->id];
+        });
+    } catch (Exception $e) {
+        Log::error($e);
+        return response()->json([
+            'message' => 'There was an error'
+        ], 500);
     }
 });

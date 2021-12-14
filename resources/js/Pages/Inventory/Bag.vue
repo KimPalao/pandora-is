@@ -6,7 +6,14 @@
           <h2 class="h4 font-weight-bold">Bag {{ bag.name || bag_id }}</h2>
         </div>
         <div class="col-auto">
-          <button class="btn btn-info" @click="movement_form_visible = true">
+          <button
+            :disabled="bag.is_sold"
+            class="btn btn-info"
+            @click="movement_form_visible = true"
+            :title="
+              bag.is_sold ? `Bag has already been sold.` : `Update bag activity`
+            "
+          >
             Update
           </button>
         </div>
@@ -92,7 +99,15 @@
               placeholder="Time"
             />
           </div>
-          <div class="col-4"></div>
+          <div class="col-4" v-show="movement_form.to === 0">
+            <InputNumber
+              v-model="movement_form.price"
+              mode="currency"
+              currency="PHP"
+              locale="en-US"
+              placeholder="Sale Price"
+            />
+          </div>
         </div>
         <div class="row">
           <div class="col-auto ms-auto">
@@ -113,6 +128,7 @@ import Dropdown from "primevue/dropdown";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import Calendar from "primevue/calendar";
+import InputNumber from "primevue/inputnumber";
 import { DateTime } from "luxon";
 
 export default defineComponent({
@@ -123,6 +139,7 @@ export default defineComponent({
     Dialog,
     Button,
     Calendar,
+    InputNumber,
   },
   props: {
     bag_id: Number,
@@ -137,12 +154,13 @@ export default defineComponent({
       movement_form: {
         to: null,
         datetime: null,
+        price: 0,
       },
     };
   },
   computed: {
     site_options() {
-      return this.sites;
+      return [{ id: 0, name: "Sold" }].concat(this.sites);
     },
     movement_form_data() {
       const data = { ...this.movement_form };
@@ -161,6 +179,7 @@ export default defineComponent({
         axios.get(`/api/sites`),
       ]);
       this.bag = bag.data.data;
+      this.movement_form.price = this.bag.price;
       this.movement = movement.data.data;
       this.sites = sites.data.data;
     },
