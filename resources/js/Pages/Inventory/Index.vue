@@ -317,21 +317,21 @@ export default defineComponent({
     },
 
     async search_bags() {
+      this.loading = true;
       const bags = await axios.get("/api/inventory", {
         params: this.params,
       });
       this.bags = bags.data.data;
       this.totalRecords = bags.data.count;
+      this.loading = false;
     },
     async get_data() {
-      this.loading = true;
       const [_, sites] = await Promise.all([
         this.search_bags(),
         axios.get("/api/sites"),
       ]);
       this.sites = sites.data.data;
       this.sites.push({ id: null, name: "Sold" });
-      this.loading = false;
     },
   },
   beforeMount() {
