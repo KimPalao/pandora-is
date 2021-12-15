@@ -21,17 +21,22 @@
           <div class="card shadow bg-light">
             <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
               <DataTable
-                :value="bags"
+                lazy
                 responsiveLayout="scroll"
-                :paginator="true"
-                :rows="10"
+                paginator
                 paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                :rowsPerPageOptions="[10, 20, 50]"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-                v-model:filters="filters"
                 filterDisplay="menu"
                 sortMode="multiple"
+                :value="bags"
+                :rows="10"
+                :rowsPerPageOptions="[10, 20, 50]"
                 :loading="loading"
+                :totalRecords="totalRecords"
+                v-model:filters="filters"
+                @page="params = $event"
+                @sort="params = $event"
+                @filter="params.filters = filters"
               >
                 <Column field="name" header="Name" sortable>
                   <template #body="slotProps">
@@ -75,7 +80,6 @@
                   filterField="latest_movement.to_site"
                   :showFilterMatchModes="false"
                   :filterMenuStyle="{ width: '14rem' }"
-                  sortable
                 >
                   <template #body="slotProps">
                     {{
@@ -259,6 +263,9 @@ export default defineComponent({
       },
       loading: false,
 
+      params: {},
+      totalRecords: 0,
+
       // new bag form
       new_bag_form_visible: false,
       new_bag_form: {
@@ -303,20 +310,49 @@ export default defineComponent({
         this.submitting = false;
       }
     },
+    // DataTable
+
+    on_page(event) {
+      this.params = event;
+    },
+
+    async search_bags() {
+      const bags = await axios.get("/api/inventory", {
+        params: this.params,
+      });
+      this.bags = bags.data.data;
+      this.totalRecords = bags.data.count;
+    },
     async get_data() {
       this.loading = true;
-      const [bags, sites] = await Promise.all([
-        axios.get("/api/inventory"),
+      const [_, sites] = await Promise.all([
+        this.search_bags(),
         axios.get("/api/sites"),
       ]);
-      this.bags = bags.data.data;
       this.sites = sites.data.data;
       this.sites.push({ id: null, name: "Sold" });
       this.loading = false;
     },
   },
+  beforeMount() {
+    this.params = {
+      first: 0,
+      sortField: null,
+      sortOrder: null,
+      filters: this.filters,
+    };
+  },
   mounted() {
     this.get_data();
+  },
+  watch: {
+    params: {
+      handler() {
+        console.log("params");
+        this.search_bags();
+      },
+      deep: true,
+    },
   },
 });
 </script>

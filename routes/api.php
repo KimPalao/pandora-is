@@ -25,7 +25,37 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('/inventory', function (Request $request) {
-    return ['data' => Bag::with('latestMovement')->get()->all()];
+    $offset = $request->input('first', 0);
+    $limit = $request->input('rows', 10);
+    $query = Bag::with('latestMovement');
+    $filters = json_decode($request->input('filters'), true) ?? [];
+    if ($latest_movement = $filters['latest_movement.to_site']['value'] ?? null) {
+        $query->whereHas('latestMovement', function ($query) use ($latest_movement) {
+            foreach ($latest_movement as $index => $movement) {
+                if ($index === 0) {
+                    $query->where('to', '=', $movement['id']);
+                } else {
+                    $query->orWhere('to', '=', $movement['id']);
+                }
+            }
+            return $query;
+        });
+    }
+    if (!is_null($is_sold = $filters['is_sold']['value'] ?? null)) {
+        $query->where('is_sold', $is_sold);
+    }
+    $sort = $request->input('multiSortMeta', []);
+    foreach ($sort as $s) {
+        $s = json_decode($s, true);
+        $field = '';
+        if ($s['field'] === 'price' || $s['field'] === 'name') {
+            $field = $s['field'];
+        }
+        if (!$field) continue;
+        $query->orderBy($field, $s['order'] === 1 ? 'asc' : 'desc');
+    }
+    $data = ['count' => $query->count(), 'data' => $query->offset($offset)->limit($limit)->get()];
+    return $data;
 });
 Route::get('/bag/image/{id}/{index}', function ($id, $index) {
     $image = BagImage::whereBagId($id)->limit(1)->offset($index)->first();
