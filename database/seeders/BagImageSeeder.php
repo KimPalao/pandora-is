@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bag;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +16,7 @@ class BagImageSeeder extends Seeder
     public function run()
     {
         $faker = \Faker\Factory::create();
-        foreach (DB::table('bags')->get() as $bag) {
+        foreach (Bag::doesnthave('images')->get() as $bag) {
             for ($i = 0; $i < 3; $i++) {
                 $image = $faker->image('public/img/bags');
                 $image = substr($image, 7);

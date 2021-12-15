@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bag;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ class SaleSeeder extends Seeder
      */
     public function run()
     {
-        foreach (DB::table('bags')->where('is_sold', true)->get() as $bag) {
+        foreach (Bag::doesnthave('sale')->where('is_sold', true)->get() as $bag) {
             /** @var Bag $bag */
             $deviation = (random_int(-10, 10) * $bag->price) / 100;
             if ($sold_movement = DB::table('bag_movements')->where('bag_id', $bag->id)->whereNull('to')->first()) {

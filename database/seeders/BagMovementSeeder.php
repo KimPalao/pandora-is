@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Bag;
 use DateInterval;
 use Facade\Ignition\LogRecorder\LogMessage;
 use Illuminate\Database\Seeder;
@@ -17,7 +18,7 @@ class BagMovementSeeder extends Seeder
      */
     public function run()
     {
-        foreach (DB::table('bags')->get() as $bag) {
+        foreach (Bag::doesnthave('movement')->get() as $bag) {
             $movement_count = random_int(1, 10);
             $from = null;
             $to = null;
@@ -37,7 +38,6 @@ class BagMovementSeeder extends Seeder
                 } else if ($i === $movement_count - 1 && $bag->is_sold) {
                     /** @var \App\Models\Site */
                     $from = $to;
-                    Log::debug("P{$days}D{$minutes}M");
                     DB::table('bag_movements')->insert([
                         'from' => $from->id,
                         'datetime' => ($date->add(new DateInterval("P{$days}DT{$minutes}M")))->format('Y-m-d H:i:s'),
