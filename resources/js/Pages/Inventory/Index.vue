@@ -31,6 +31,7 @@
                 v-model:filters="filters"
                 filterDisplay="menu"
                 sortMode="multiple"
+                :loading="loading"
               >
                 <Column field="name" header="Name" sortable>
                   <template #body="slotProps">
@@ -256,6 +257,7 @@ export default defineComponent({
         },
         is_sold: { value: null, matchMode: FilterMatchMode.EQUALS },
       },
+      loading: false,
 
       // new bag form
       new_bag_form_visible: false,
@@ -302,6 +304,7 @@ export default defineComponent({
       }
     },
     async get_data() {
+      this.loading = true;
       const [bags, sites] = await Promise.all([
         axios.get("/api/inventory"),
         axios.get("/api/sites"),
@@ -309,6 +312,7 @@ export default defineComponent({
       this.bags = bags.data.data;
       this.sites = sites.data.data;
       this.sites.push({ id: null, name: "Sold" });
+      this.loading = false;
     },
   },
   mounted() {
