@@ -66,20 +66,7 @@ export default defineComponent({
       end_date: null,
 
       data: {
-        labels: [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ],
+        labels: [],
         datasets: [
           {
             label: "Sales",
@@ -96,11 +83,31 @@ export default defineComponent({
     };
   },
   methods: {
-    async get_data() {},
+    async get_data() {
+      const start_date = this.datetimeToLocal(this.start_date, "yyyy-MM-dd");
+      const end_date = this.datetimeToLocal(this.end_date, "yyyy-MM-dd");
+      console.log(start_date, end_date);
+      const response = await axios.get("/api/sales/report", {
+        params: { start_date, end_date },
+      });
+      this.data.labels = response.data.labels;
+      this.data.datasets[0].data = response.data.data;
+    },
+  },
+  watch: {
+    start_date() {
+      this.get_data();
+    },
+    end_date() {
+      this.get_data();
+    },
   },
   mounted() {
+    this.end_date = new Date();
+    const start_date = new Date();
+    start_date.setMonth(start_date.getMonth() - 11);
+    this.start_date = start_date;
     this.get_data();
-    console.log(Color({ h: 0, s: 100, l: 50 }));
   },
 });
 </script>

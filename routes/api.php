@@ -129,6 +129,38 @@ Route::post('/bag/barcodes', function (Request $request) {
 Route::get('/sales/recent', function () {
     return ['data' => Sale::with('bag')->latest('datetime')->limit(10)->get()];
 });
-Route::get('/sales/report', function () {
-    return [];
+Route::get('/sales/report', function (Request $request) {
+    $start_date = $request->input('start_date');
+    $end_date = $request->input('end_date') . ' 23:59:59';
+    $sales = Sale::whereBetween('datetime', [$start_date, $end_date])->orderBy('datetime')->get();
+    $sales_report = [];
+
+    // Set to month of first day
+    $sales_report_start = new DateTime($start_date);
+    $sales_report_start->modify($sales_report_start->format('Y-m-1'));
+    $sales_report_end = new DateTime($end_date);
+    $sales_report_end->modify($sales_report_end->format('Y-m-1'));
+
+    if (
+        $sales_report_start->format('Y') === $sales_report_end->format('Y')
+    ) {
+        $format = 'F';
+    } else {
+        $format = 'Y F';
+    }
+
+    while ($sales_report_start->format('Y-m') !== $sales_report_end->format('Y-m')) {
+        $sales_report[$sales_report_start->format($format)] = 0;
+        $sales_report_start->add(new DateInterval("P1M"));
+    }
+
+    foreach ($sales as $sale) {
+        $datetime = new DateTime($sale->datetime);
+        $key = $datetime->format($format);
+        if (!array_key_exists($key, $sales_report)) {
+            $sales_report[$key] = 0;
+        }
+        $sales_report[$key] += $sale->price;
+    }
+    return ['data' => array_values($sales_report), 'labels' => array_keys($sales_report)];
 });

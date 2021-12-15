@@ -22,10 +22,8 @@ const currencyMixin = {
 
 const datetimeMixin = {
   methods: {
-    datetimeToLocal(datetime) {
-      return DateTime.fromISO(datetime.toISOString()).toFormat(
-        "yyyy-MM-dd HH:mm:ss"
-      );
+    datetimeToLocal(datetime, format = "yyyy-MM-dd HH:mm:ss") {
+      return DateTime.fromISO(datetime.toISOString()).toFormat(format);
     }
   }
 };
