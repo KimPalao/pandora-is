@@ -34,8 +34,10 @@
         "vue-loader": "^16.1.2"
     },
     "dependencies": {
+        "color": "^4.1.0",
         "luxon": "^2.2.0",
         "primeicons": "^5.0.0",
-        "primevue": "^3.10.0"
+        "primevue": "^3.10.0",
+        "vue-chart-3": "^3.0.4"
     }
 }

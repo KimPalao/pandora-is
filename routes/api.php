@@ -129,3 +129,6 @@ Route::post('/bag/barcodes', function (Request $request) {
 Route::get('/sales/recent', function () {
     return ['data' => Sale::with('bag')->latest('datetime')->limit(10)->get()];
 });
+Route::get('/sales/report', function () {
+    return [];
+});

@@ -50,6 +50,12 @@
             >
               Audit
             </jet-nav-link>
+            <jet-nav-link
+              :href="route('reports')"
+              :active="route().current('reports')"
+            >
+              Reports
+            </jet-nav-link>
           </ul>
 
           <!-- Right Side Of Navbar -->
