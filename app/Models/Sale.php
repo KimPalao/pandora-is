@@ -29,4 +29,9 @@ use Illuminate\Database\Eloquent\Model;
 class Sale extends Model
 {
     use HasFactory;
+
+    public function bag()
+    {
+        return $this->belongsTo(Bag::class);
+    }
 }
