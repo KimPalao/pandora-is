@@ -181,7 +181,7 @@ Route::get('/sales', function (Request $request) {
     foreach ($sort as $s) {
         $s = json_decode($s, true);
         $field = '';
-        if ($s['field'] === 'price') {
+        if ($s['field'] === 'price' || $s['field'] === 'datetime') {
             $field = $s['field'];
         }
         if (!$field) continue;

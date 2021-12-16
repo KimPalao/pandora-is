@@ -38,6 +38,13 @@
                 @sort="params = $event"
                 @filter="params.filters = filters"
               >
+                <Column field="datetime" header="Date & Time" sortable>
+                  <template #body="slotProps">
+                    <Link :href="route('bag', slotProps.data.id)">{{
+                      slotProps.data.datetime
+                    }}</Link>
+                  </template></Column
+                >
                 <Column field="bag.name" header="Name">
                   <template #body="slotProps">
                     <Link :href="route('bag', slotProps.data.id)">{{
