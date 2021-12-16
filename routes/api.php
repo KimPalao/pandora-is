@@ -159,6 +159,37 @@ Route::post('/bag/barcodes', function (Request $request) {
 Route::get('/sales/recent', function () {
     return ['data' => Sale::with('bag')->latest('datetime')->limit(10)->get()];
 });
+Route::get('/sales', function (Request $request) {
+    $offset = $request->input('first', 0);
+    $limit = $request->input('rows', 10);
+    $query = Sale::with('bag')->with('site');
+    $filters = json_decode($request->input('filters'), true) ?? [];
+    if ($sites = $filters['site']['value'] ?? null) {
+        foreach ($sites as $index => $site) {
+            if ($index === 0) {
+                $query->whereHas('site', function ($query) use ($site) {
+                    return $query->where('sites.id', '=', $site['id']);
+                });
+            } else {
+                $query->orWhereHas('site', function ($query) use ($site) {
+                    return $query->where('sites.id', '=', $site['id']);
+                });
+            }
+        }
+    }
+    $sort = $request->input('multiSortMeta', []);
+    foreach ($sort as $s) {
+        $s = json_decode($s, true);
+        $field = '';
+        if ($s['field'] === 'price') {
+            $field = $s['field'];
+        }
+        if (!$field) continue;
+        $query->orderBy($field, $s['order'] === 1 ? 'asc' : 'desc');
+    }
+    $data = ['count' => $query->count(), 'data' => $query->offset($offset)->limit($limit)->get()];
+    return $data;
+});
 Route::get('/sales/report', function (Request $request) {
     $start_date = $request->input('start_date');
     $end_date = $request->input('end_date') . ' 23:59:59';

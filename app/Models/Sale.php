@@ -34,4 +34,9 @@ class Sale extends Model
     {
         return $this->belongsTo(Bag::class);
     }
+
+    public function site()
+    {
+        return $this->hasOneThrough(Site::class, BagMovement::class,  'bag_id', 'id', 'bag_id', 'from')->where('to', null);
+    }
 }

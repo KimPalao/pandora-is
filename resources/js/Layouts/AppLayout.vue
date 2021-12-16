@@ -56,6 +56,12 @@
             >
               Reports
             </jet-nav-link>
+            <jet-nav-link
+              :href="route('sales')"
+              :active="route().current('sales')"
+            >
+              Sales
+            </jet-nav-link>
           </ul>
 
           <!-- Right Side Of Navbar -->

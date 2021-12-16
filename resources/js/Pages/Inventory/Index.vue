@@ -305,7 +305,7 @@ export default defineComponent({
         const id = response.data.id;
         this.get_data();
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         this.submitting = false;
       }
@@ -348,7 +348,6 @@ export default defineComponent({
   watch: {
     params: {
       handler() {
-        console.log("params");
         this.search_bags();
       },
       deep: true,
