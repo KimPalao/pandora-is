@@ -17,5 +17,7 @@ mix.js('resources/js/app.js', 'public/js').vue()
 
 if (mix.inProduction()) {
   mix.version();
+} else {
+  // Only run browser sync on dev
+  mix.browserSync('0.0.0.0:8000');
 }
-mix.browserSync('0.0.0.0:8000');
