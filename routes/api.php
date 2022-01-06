@@ -3,6 +3,8 @@
 use App\Models\Bag;
 use App\Models\BagImage;
 use App\Models\BagMovement;
+use App\Models\Product;
+use App\Models\Resource;
 use App\Models\Sale;
 use App\Models\Site;
 use Illuminate\Http\Request;
@@ -225,3 +227,27 @@ Route::get('/sales/report', function (Request $request) {
     }
     return ['data' => array_values($sales_report), 'labels' => array_keys($sales_report)];
 });
+Route::get('/resolve-products', function (Request $request) {
+    $ids = explode(',', $request->get('products'));
+    $quantities = explode(',', $request->get('quantities'));
+    $resources = [];
+    $products = [];
+    foreach ($ids as $index => $id) {
+        $quantity = $quantities[$index];
+        $product = Product::find($id);
+        $products[] = $product;
+        foreach ($product->resources as $resource) {
+            if (!array_key_exists($resource->id, $resources)) {
+                $resources[$resource->id] = [
+                    'resource' => $resource,
+                    'quantity' => -$resource->stock
+                ];
+            }
+            $resources[$resource->id]['quantity'] += (int)$quantity * $resource->pivot->quantity;
+        }
+    }
+    foreach ($resources as $resource_id => $resource) {
+        if ($resource['quantity'] < 0) $resources[$resource_id]['quantity'] = 0;
+    }
+    return ['products' => $products, 'resources' => $resources];
+})->name('resolve-products');
