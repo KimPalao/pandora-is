@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $stock
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ResourceImage[] $images
+ * @property-read int|null $images_count
  * @method static \Database\Factories\ResourceFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Resource newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Resource newQuery()
@@ -33,4 +35,11 @@ class Resource extends Model
     use HasFactory;
 
     public $fillable = ['name', 'description', 'unit', 'stock'];
+
+    public const UPLOAD_PATH = 'storage/app/public/img/resources';
+
+    public function images()
+    {
+        return $this->hasMany(ResourceImage::class);
+    }
 }

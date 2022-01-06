@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $resource_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Resource $resource
  * @method static \Database\Factories\ResourceImageFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|ResourceImage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ResourceImage newQuery()
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 class ResourceImage extends Model
 {
     use HasFactory;
+
+    public $fillable = ['name', 'file_name'];
 
     public function resource()
     {

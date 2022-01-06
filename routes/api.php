@@ -230,11 +230,14 @@ Route::get('/sales/report', function (Request $request) {
 Route::get('/resolve-products', function (Request $request) {
     $ids = explode(',', $request->get('products'));
     $quantities = explode(',', $request->get('quantities'));
+    Log::info($ids);
+    Log::info($quantities);
     $resources = [];
     $products = [];
     foreach ($ids as $index => $id) {
         $quantity = $quantities[$index];
         $product = Product::find($id);
+        if (!$product) continue;
         $products[] = $product;
         foreach ($product->resources as $resource) {
             if (!array_key_exists($resource->id, $resources)) {
@@ -251,3 +254,15 @@ Route::get('/resolve-products', function (Request $request) {
     }
     return ['products' => $products, 'resources' => $resources];
 })->name('resolve-products');
+Route::get('/products', function (Request $request) {
+    $name = $request->get('name');
+    return [
+        'data' => Product::where('name', 'like', "%$name%")->get()
+    ];
+});
+Route::get('/resource/{resource}/image', function (Request $request, Resource $resource) {
+    if ($resource->images->count() > 0) {
+        return response()->file(base_path(Resource::UPLOAD_PATH . DIRECTORY_SEPARATOR . $resource->images->first()->file_name));
+    }
+    return response()->file(public_path('img/placeholder-200x200.jpg'));
+});

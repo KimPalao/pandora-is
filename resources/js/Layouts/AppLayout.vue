@@ -62,6 +62,12 @@
             >
               Sales
             </jet-nav-link>
+            <jet-nav-link
+              :href="route('query')"
+              :active="route().current('query')"
+            >
+              Query
+            </jet-nav-link>
           </ul>
 
           <!-- Right Side Of Navbar -->
