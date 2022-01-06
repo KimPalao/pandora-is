@@ -31,4 +31,6 @@ use Illuminate\Database\Eloquent\Model;
 class Resource extends Model
 {
     use HasFactory;
+
+    public $fillable = ['name', 'description', 'unit', 'stock'];
 }

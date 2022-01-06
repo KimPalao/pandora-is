@@ -31,4 +31,16 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+
+    public $fillable = ['name', 'description', 'stock', 'price'];
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function resources()
+    {
+        return $this->belongsToMany(Resource::class, 'product_resources')->withPivot('quantity');
+    }
 }

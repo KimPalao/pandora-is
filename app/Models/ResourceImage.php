@@ -29,4 +29,9 @@ use Illuminate\Database\Eloquent\Model;
 class ResourceImage extends Model
 {
     use HasFactory;
+
+    public function resource()
+    {
+        return $this->belongsTo(Resource::class);
+    }
 }
