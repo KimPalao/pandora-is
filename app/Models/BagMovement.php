@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $datetime
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Site|null $fromSite
+ * @property-read \App\Models\Site|null $toSite
  * @method static \Database\Factories\BagMovementFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|BagMovement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BagMovement newQuery()
@@ -27,8 +29,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|BagMovement whereTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BagMovement whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \App\Models\Site|null $fromSite
- * @property-read \App\Models\Site|null $toSite
  */
 class BagMovement extends Model
 {

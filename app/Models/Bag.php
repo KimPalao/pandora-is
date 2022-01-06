@@ -15,12 +15,18 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $price
  * @property string $date_obtained
  * @property int $is_sold
+ * @property string|null $barcode
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BagImage[] $images
  * @property-read int|null $images_count
+ * @property-read \App\Models\BagMovement|null $latestMovement
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BagMovement[] $movement
+ * @property-read int|null $movement_count
+ * @property-read \App\Models\Sale|null $sale
  * @method static \Database\Factories\BagFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Bag newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Bag query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bag whereBarcode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag whereDateObtained($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag whereId($value)
@@ -29,13 +35,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Bag wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bag whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BagMovement[] $movement
- * @property-read int|null $movement_count
- * @property-read \App\Models\Sale|null $sale
- * @property-read \App\Models\BagMovement|null $currentSite
- * @property string|null $barcode
- * @property-read \App\Models\BagMovement|null $latestMovement
- * @method static \Illuminate\Database\Eloquent\Builder|Bag whereBarcode($value)
  */
 class Bag extends Model
 {

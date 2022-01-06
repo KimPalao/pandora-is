@@ -11,20 +11,22 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $bag_id
  * @property float $price
+ * @property string $datetime
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Bag $bag
+ * @property-read \App\Models\Site|null $site
  * @method static \Database\Factories\SaleFactory factory(...$parameters)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Sale newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Sale query()
  * @method static \Illuminate\Database\Eloquent\Builder|Sale whereBagId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Sale whereDatetime($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale wherePrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Sale whereUpdatedAt($value)
  * @mixin \Eloquent
- * @property string $datetime
- * @method static \Illuminate\Database\Eloquent\Builder|Sale whereDatetime($value)
  */
 class Sale extends Model
 {
