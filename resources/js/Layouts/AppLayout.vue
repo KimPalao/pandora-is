@@ -69,6 +69,12 @@
               Products
             </jet-nav-link>
             <jet-nav-link
+              :href="route('resources')"
+              :active="route().current('resources')"
+            >
+              Resources 
+            </jet-nav-link>
+            <jet-nav-link
               :href="route('query')"
               :active="route().current('query')"
             >

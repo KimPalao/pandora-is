@@ -263,7 +263,7 @@ Route::get('/products', function (Request $request) {
     $query = Product::query();
     $filters = json_decode($request->input('filters'), true) ?? [];
     $with_resources = $request->input('with_resources', '') === 'true';
-    if ($name = Arr::get($filters, 'global.search', '')) {
+    if ($name = Arr::get($filters, 'global.value', '')) {
         $query->where('name', 'like', "%$name%");
     }
 
@@ -286,7 +286,31 @@ Route::get('/products', function (Request $request) {
     ];
 });
 Route::get('/resources', function (Request $request) {
-    return ['data' => Resource::all()];
+    $name = $request->get('name');
+    $offset = $request->get('first', 0);
+    $limit = $request->get('rows', 1000);
+    $query = Resource::query();
+    $filters = json_decode($request->get('filters'), true) ?? [];
+    Log::debug($filters);
+    if ($name = Arr::get($filters, 'global.value', '')) {
+        Log::info($name);
+        $query = $query->where('name', 'like', "%$name%");
+    }
+
+    $sort = $request->input('multiSortMeta', []);
+    foreach ($sort as $s) {
+        $s = json_decode($s, true);
+        $field = '';
+        if (in_array($s['field'], ['name', 'stock'])) {
+            $field = $s['field'];
+        }
+        if (!$field) continue;
+        $query->orderBy($field, $s['order'] === 1 ? 'asc' : 'desc');
+    }
+    return [
+        'count' => $query->count(),
+        'data' => $query->offset($offset)->limit($limit)->get(),
+    ];
 });
 Route::post('/products', function (Request $request) {
     DB::beginTransaction();
@@ -312,6 +336,31 @@ Route::post('/products', function (Request $request) {
     }
     DB::commit();
     return ['id' => $product->id];
+});
+Route::post('/resources', function (Request $request) {
+    DB::beginTransaction();
+    $resource = new Resource([
+        'name' => $request->post('name'),
+        'unit' => $request->post('unit'),
+        'description' => $request->post('description'),
+        'stock' => $request->post('stock')
+    ]);
+    $resource->save();
+    $images = $request->file('images');
+    foreach ($images ?? [] as $index => $image) {
+        $path = $image->storeAs('img/products', "product-{$index}-{$resource->id}."  . $image->getClientOriginalExtension(), 'public');
+        $resource->images()->create([
+            'name' => "{$resource->name} {$index}",
+            'file_name' => $path,
+        ]);
+    }
+    DB::commit();
+    return ['id' => $resource->id];
+});
+Route::post('/resources/{resource}/update-stock/{stock}', function (Request $request, Resource $resource, int $stock) {
+    $resource->stock = $stock;
+    $resource->save();
+    return ['message' => 'Updated stock'];
 });
 Route::post('/products/{product}/update-stock/{stock}', function (Request $request, Product $product, int $stock) {
     $product->stock = $stock;

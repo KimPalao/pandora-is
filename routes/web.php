@@ -24,6 +24,9 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/inventory', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/inventory/products', function () {
     return Inertia::render('Inventory/Products');
 })->name('products');
+Route::middleware(['auth:sanctum', 'verified'])->get('/inventory/resources', function () {
+    return Inertia::render('Inventory/Resources');
+})->name('resources');
 Route::middleware(['auth:sanctum', 'verified'])->get('/inventory/bag/{id}', function (int $id) {
     return Inertia::render('Inventory/Bag', ['bag_id' => $id]);
 })->name('bag');
