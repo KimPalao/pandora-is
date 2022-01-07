@@ -33,34 +33,10 @@
           <!-- Left Side Of Navbar -->
           <ul class="navbar-nav me-auto">
             <jet-nav-link
-              :href="route('dashboard')"
-              :active="route().current('dashboard')"
-            >
-              Dashboard
-            </jet-nav-link>
-            <jet-nav-link
-              :href="route('inventory')"
-              :active="route().current('inventory')"
-            >
-              Inventory
-            </jet-nav-link>
-            <jet-nav-link
-              :href="route('audit')"
-              :active="route().current('audit')"
-            >
-              Audit
-            </jet-nav-link>
-            <jet-nav-link
               :href="route('reports')"
               :active="route().current('reports')"
             >
               Reports
-            </jet-nav-link>
-            <jet-nav-link
-              :href="route('sales')"
-              :active="route().current('sales')"
-            >
-              Sales
             </jet-nav-link>
             <jet-nav-link
               :href="route('products')"
