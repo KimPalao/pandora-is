@@ -28,7 +28,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    public $fillable = ['total'];
+    public $fillable = ['total', 'created_at'];
 
     public function products()
     {

@@ -215,7 +215,7 @@ Route::get('/orders', function (Request $request) {
 });
 Route::post('orders', function (Request $request) {
     DB::beginTransaction();
-    $order = new Order(['total' => $request->post('total')]);
+    $order = new Order(['total' => $request->post('total'), 'created_at' => $request->post('created_at')]);
     $order->save();
     foreach ($request->post('products') as $product) {
         $quantity = $product['quantity'];
