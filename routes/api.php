@@ -363,8 +363,21 @@ Route::post('/resources/{resource}/update-stock/{stock}', function (Request $req
     return ['message' => 'Updated stock'];
 });
 Route::post('/products/{product}/update-stock/{stock}', function (Request $request, Product $product, int $stock) {
+    DB::beginTransaction();
     $product->stock = $stock;
     $product->save();
+
+    foreach ($request->post('resources') as $resource_to_use) {
+        $id = $resource_to_use['resource_id'];
+        $quantity = $resource_to_use['quantity'];
+        $resource = Resource::find($id);
+        if ($resource->stock - $quantity < 0) {
+            $quantity = $resource->stock;
+        }
+        $resource->stock -= $quantity;
+        $resource->save();
+    }
+    DB::commit();
     return ['message' => 'Updated stock'];
 });
 Route::get('/resource/{resource}/image', function (Request $request, Resource $resource) {

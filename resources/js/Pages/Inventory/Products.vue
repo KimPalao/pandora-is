@@ -177,7 +177,7 @@
       :breakpoints="{ '2000px': '75vw', '640px': '100vw' }"
     >
       <template #header>
-        <h3>Update Stock</h3>
+        <h3>Update Stock of {{ to_update_stock.name }}</h3>
       </template>
       <form @submit.prevent="update_stock">
         <div class="row justify-content-center">
@@ -193,7 +193,8 @@
 
           <div class="col-2">
             <InputNumber
-              v-model="to_update_stock.new_stock"
+              v-model="products[update_stock_index].new_stock"
+              @input="compute_resources_to_use"
               placeholder="Stock"
               :disabled="submitting"
               required
@@ -209,6 +210,35 @@
           </div>
           <div class="col-1">
             <Button @click="add_stock(100)">+100</Button>
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col">
+            <h5>Resources that will be used:</h5>
+          </div>
+        </div>
+
+        <div
+          class="row"
+          v-for="(resource, index) in to_update_stock.resources"
+          :key="`to-update-resource-${index}`"
+        >
+          <div class="col-auto">
+            <img
+              :src="`/api/resource/${resource.id}/image`"
+              alt=""
+              style="width: 25px; height: 25px"
+            />
+          </div>
+          <div class="col-4">
+            {{ resource.name }} x {{ resource.pivot.quantity }}
+          </div>
+          <div class="col-auto">x {{ new_stock }} =</div>
+          <div class="col-auto">
+            <InputNumber
+              v-model="products[update_stock_index].resources[index].to_use"
+            />
           </div>
         </div>
 
@@ -322,6 +352,12 @@ export default defineComponent({
       if (this.update_stock_index === null) return {};
       return this.products[this.update_stock_index];
     },
+    new_stock() {
+      return Math.max(
+        this.to_update_stock.new_stock - this.to_update_stock.stock,
+        0
+      );
+    },
   },
   methods: {
     async submit() {
@@ -363,17 +399,46 @@ export default defineComponent({
     show_update_stock(index) {
       this.update_stock_index = index;
       this.products[index].new_stock = this.products[index].stock;
+      for (let resources of this.products[index].resources) {
+        this.products[index].resources.stock_to_use = 0;
+      }
       this.update_stock_visible = true;
     },
 
     add_stock(stock) {
       this.products[this.update_stock_index].new_stock += stock;
+      this.compute_resources_to_use();
+    },
+
+    compute_resources_to_use(event) {
+      const new_stock = event.value - this.to_update_stock.stock;
+      for (
+        let i = 0;
+        i < this.products[this.update_stock_index].resources.length;
+        i++
+      ) {
+        if (new_stock < 0) {
+          this.products[this.update_stock_index].resources[i].to_use = 0;
+        } else {
+          this.products[this.update_stock_index].resources[i].to_use =
+            new_stock *
+            this.products[this.update_stock_index].resources[i].pivot.quantity;
+        }
+      }
     },
 
     async update_stock() {
       try {
+        const data = { resources: [] };
+        for (let resource of this.to_update_stock.resources) {
+          data.resources.push({
+            resource_id: resource.id,
+            quantity: resource.to_use,
+          });
+        }
         const response = await axios.post(
-          `/api/products/${this.to_update_stock.id}/update-stock/${this.to_update_stock.new_stock}`
+          `/api/products/${this.to_update_stock.id}/update-stock/${this.to_update_stock.new_stock}`,
+          data
         );
         this.update_stock_index = null;
         this.update_stock_visible = false;
