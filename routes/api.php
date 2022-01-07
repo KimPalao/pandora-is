@@ -313,6 +313,11 @@ Route::post('/products', function (Request $request) {
     DB::commit();
     return ['id' => $product->id];
 });
+Route::post('/products/{product}/update-stock/{stock}', function (Request $request, Product $product, int $stock) {
+    $product->stock = $stock;
+    $product->save();
+    return ['message' => 'Updated stock'];
+});
 Route::get('/resource/{resource}/image', function (Request $request, Resource $resource) {
     if ($resource->images->count() > 0) {
         return response()->file(base_path(Resource::UPLOAD_PATH . DIRECTORY_SEPARATOR . $resource->images->first()->file_name));

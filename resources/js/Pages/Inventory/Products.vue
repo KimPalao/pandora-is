@@ -50,18 +50,18 @@
                     </span>
                   </div>
                 </template>
-                <Column field="name" header="Name" sortable>
-                  <template #body="slotProps">
-                    <Link
-                      :href="route('bag', slotProps.data.id)"
-                      :active="route().current('bag')"
-                      >{{ slotProps.data.name }}</Link
-                    >
-                  </template></Column
-                >
+                <Column field="name" header="Name" sortable />
                 <Column field="price" header="Price" sortable>
                   <template #body="slotProps">
                     {{ renderCurrency(slotProps.data.price) }}
+                  </template>
+                </Column>
+                <Column field="stock" header="Stock" sortable />
+                <Column field="" header="">
+                  <template #body="slotProps">
+                    <Button @click="show_update_stock(slotProps.index)"
+                      >Update Stock</Button
+                    >
                   </template>
                 </Column>
               </DataTable>
@@ -171,6 +171,60 @@
         </div>
       </form>
     </Dialog>
+    <Dialog
+      v-model:visible="update_stock_visible"
+      :modal="true"
+      :breakpoints="{ '2000px': '75vw', '640px': '100vw' }"
+    >
+      <template #header>
+        <h3>Update Stock</h3>
+      </template>
+      <form @submit.prevent="update_stock">
+        <div class="row justify-content-center">
+          <div class="col-1">
+            <Button @click="add_stock(-100)">-100</Button>
+          </div>
+          <div class="col-1">
+            <Button @click="add_stock(-10)">-10</Button>
+          </div>
+          <div class="col-1">
+            <Button @click="add_stock(-1)">-1</Button>
+          </div>
+
+          <div class="col-2">
+            <InputNumber
+              v-model="to_update_stock.new_stock"
+              placeholder="Stock"
+              :disabled="submitting"
+              required
+              class="w-100"
+            />
+          </div>
+
+          <div class="col-1">
+            <Button @click="add_stock(1)">+1</Button>
+          </div>
+          <div class="col-1">
+            <Button @click="add_stock(10)">+10</Button>
+          </div>
+          <div class="col-1">
+            <Button @click="add_stock(100)">+100</Button>
+          </div>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-auto ms-auto">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="submitting"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </Dialog>
   </app-layout>
 </template>
 
@@ -258,7 +312,16 @@ export default defineComponent({
       },
       new_images: [],
       submitting: false,
+
+      update_stock_index: null,
+      update_stock_visible: false,
     };
+  },
+  computed: {
+    to_update_stock() {
+      if (this.update_stock_index === null) return {};
+      return this.products[this.update_stock_index];
+    },
   },
   methods: {
     async submit() {
@@ -297,10 +360,33 @@ export default defineComponent({
       this.params = event;
     },
 
+    show_update_stock(index) {
+      this.update_stock_index = index;
+      this.products[index].new_stock = this.products[index].stock;
+      this.update_stock_visible = true;
+    },
+
+    add_stock(stock) {
+      this.products[this.update_stock_index].new_stock += stock;
+    },
+
+    async update_stock() {
+      try {
+        const response = await axios.post(
+          `/api/products/${this.to_update_stock.id}/update-stock/${this.to_update_stock.new_stock}`
+        );
+        this.update_stock_index = null;
+        this.update_stock_visible = false;
+        this.search();
+      } catch (e) {
+        console.log(e);
+      }
+    },
+
     async search() {
       this.loading = true;
       const response = await axios.get("/api/products", {
-        params: this.params,
+        params: { ...this.params, with_resources: "true" },
       });
       this.products = response.data.data;
       this.totalRecords = response.data.count;
