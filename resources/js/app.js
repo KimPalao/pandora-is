@@ -10,12 +10,14 @@ import { DateTime } from "luxon";
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
 const currencyMixin = {
+  data() {
+    return {
+      price_formatter: Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })
+    };
+  },
   methods: {
     renderCurrency(price) {
-      return (price).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP',
-      });
+      return this.price_formatter.format(price);
     }
   }
 };
