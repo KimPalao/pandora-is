@@ -37,6 +37,36 @@
           </div>
         </div>
       </div>
+      <div class="row justify-content-center my-5">
+        <div class="col-md-12">
+          <div class="card shadow bg-light">
+            <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
+              <h5 class="card-title mb-2">Products most sold</h5>
+              <div
+                class="row"
+                v-for="(product, index) in products"
+                :key="`product-${index}`"
+              >
+                <template v-if="index === 0">
+                  <div class="col-6">
+                    <h3>1. {{ product.name }} - x{{ product.sold }}</h3>
+                  </div>
+                </template>
+                <template v-if="index === 1">
+                  <div class="col-6">
+                    <h4>2. {{ product.name }} - x{{ product.sold }}</h4>
+                  </div>
+                </template>
+                <template v-if="index === 2">
+                  <div class="col-6">
+                    <h5>3. {{ product.name }} - x{{ product.sold }}</h5>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </app-layout>
 </template>
@@ -64,6 +94,8 @@ export default defineComponent({
     return {
       start_date: null,
       end_date: null,
+
+      products: [],
 
       data: {
         labels: [],
@@ -93,6 +125,10 @@ export default defineComponent({
       this.data.labels = response.data.labels;
       this.data.datasets[0].data = response.data.data;
     },
+    async get_most_sold() {
+      const response = await axios.get("/api/products/most-sold");
+      this.products = response.data.data;
+    },
   },
   watch: {
     start_date() {
@@ -108,6 +144,7 @@ export default defineComponent({
     start_date.setMonth(start_date.getMonth() - 11);
     this.start_date = start_date;
     this.get_data();
+    this.get_most_sold();
   },
 });
 </script>

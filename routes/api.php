@@ -420,3 +420,20 @@ Route::get('/resource/{resource}/image', function (Request $request, Resource $r
     }
     return response()->file(public_path('img/placeholder-200x200.jpg'));
 });
+Route::get('/products/most-sold', function (Request $request) {
+    $sold = Product::query()
+        ->join('order_products', 'products.id', '=', 'order_products.product_id')
+        ->groupBy('product_id')
+        ->selectRaw('SUM(order_products.quantity) as products_sold, product_id')
+        ->orderBy('products_sold', 'desc')
+        ->limit(10)
+        ->pluck('products_sold', 'product_id')
+        ->all();
+    $products = [];
+    foreach ($sold as $id => $quantity) {
+        $product = Product::find($id);
+        $product->sold = (int)$quantity;
+        $products[] = $product;
+    }
+    return ['data' => $products];
+});
