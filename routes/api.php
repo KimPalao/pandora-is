@@ -4,10 +4,12 @@ use App\Models\Bag;
 use App\Models\BagImage;
 use App\Models\BagMovement;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Resource;
 use App\Models\Sale;
 use App\Models\Site;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -256,9 +258,60 @@ Route::get('/resolve-products', function (Request $request) {
 })->name('resolve-products');
 Route::get('/products', function (Request $request) {
     $name = $request->get('name');
+    $offset = $request->get('first', 0);
+    $limit = $request->input('rows', 1000);
+    $query = Product::query();
+    $filters = json_decode($request->input('filters'), true) ?? [];
+    $with_resources = $request->input('with_resources', '') === 'true';
+    if ($name = Arr::get($filters, 'global.search', '')) {
+        $query->where('name', 'like', "%$name%");
+    }
+
+    $sort = $request->input('multiSortMeta', []);
+    foreach ($sort as $s) {
+        $s = json_decode($s, true);
+        $field = '';
+        if (in_array($s['field'], ['name', 'price', 'descripion'])) {
+            $field = $s['field'];
+        }
+        if (!$field) continue;
+        $query->orderBy($field, $s['order'] === 1 ? 'asc' : 'desc');
+    }
+    if ($with_resources) {
+        $query = $query->with('resources');
+    }
     return [
-        'data' => Product::where('name', 'like', "%$name%")->get()
+        'count' => $query->count(),
+        'data' => $query->offset($offset)->limit($limit)->get(),
     ];
+});
+Route::get('/resources', function (Request $request) {
+    return ['data' => Resource::all()];
+});
+Route::post('/products', function (Request $request) {
+    DB::beginTransaction();
+    $product = new Product([
+        'name' => $request->post('name'),
+        'price' => $request->post('price'),
+        'description' => $request->post('description'),
+        'stock' => $request->post('stock')
+    ]);
+    $product->save();
+    foreach ($request->post('resources') as $resource) {
+        $product->resources()->attach([
+            $resource['id'] => ['quantity' => $resource['quantity']]
+        ]);
+    }
+    $images = $request->file('images');
+    foreach ($images ?? [] as $index => $image) {
+        $path = $image->storeAs('img/products', "product-{$index}-{$product->id}."  . $image->getClientOriginalExtension(), 'public');
+        $product->images()->create([
+            'name' => "{$product->name} {$index}",
+            'file_name' => $path,
+        ]);
+    }
+    DB::commit();
+    return ['id' => $product->id];
 });
 Route::get('/resource/{resource}/image', function (Request $request, Resource $resource) {
     if ($resource->images->count() > 0) {
