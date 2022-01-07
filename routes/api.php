@@ -231,37 +231,37 @@ Route::post('orders', function (Request $request) {
 Route::get('/sales/report', function (Request $request) {
     $start_date = $request->input('start_date');
     $end_date = $request->input('end_date') . ' 23:59:59';
-    $sales = Sale::whereBetween('datetime', [$start_date, $end_date])->orderBy('datetime')->get();
-    $sales_report = [];
+    $orders = Order::whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at')->get();
+    $orders_report = [];
 
     // Set to month of first day
-    $sales_report_start = new DateTime($start_date);
-    $sales_report_start->modify($sales_report_start->format('Y-m-1'));
-    $sales_report_end = new DateTime($end_date);
-    $sales_report_end->modify($sales_report_end->format('Y-m-1'));
+    $orders_report_start = new DateTime($start_date);
+    $orders_report_start->modify($orders_report_start->format('Y-m-1'));
+    $orders_report_end = new DateTime($end_date);
+    $orders_report_end->modify($orders_report_end->format('Y-m-1'));
 
     if (
-        $sales_report_start->format('Y') === $sales_report_end->format('Y')
+        $orders_report_start->format('Y') === $orders_report_end->format('Y')
     ) {
         $format = 'F';
     } else {
         $format = 'Y F';
     }
 
-    while ($sales_report_start->format('Y-m') !== $sales_report_end->format('Y-m')) {
-        $sales_report[$sales_report_start->format($format)] = 0;
-        $sales_report_start->add(new DateInterval("P1M"));
+    while ($orders_report_start->format('Y-m') !== $orders_report_end->format('Y-m')) {
+        $orders_report[$orders_report_start->format($format)] = 0;
+        $orders_report_start->add(new DateInterval("P1M"));
     }
 
-    foreach ($sales as $sale) {
-        $datetime = new DateTime($sale->datetime);
+    foreach ($orders as $order) {
+        $datetime = new DateTime($order->datetime);
         $key = $datetime->format($format);
-        if (!array_key_exists($key, $sales_report)) {
-            $sales_report[$key] = 0;
+        if (!array_key_exists($key, $orders_report)) {
+            $orders_report[$key] = 0;
         }
-        $sales_report[$key] += $sale->price;
+        $orders_report[$key] += $order->total;
     }
-    return ['data' => array_values($sales_report), 'labels' => array_keys($sales_report)];
+    return ['data' => array_values($orders_report), 'labels' => array_keys($orders_report)];
 });
 Route::get('/resolve-products', function (Request $request) {
     $ids = explode(',', $request->get('products'));
