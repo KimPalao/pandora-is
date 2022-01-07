@@ -218,8 +218,12 @@ Route::post('orders', function (Request $request) {
     $order = new Order(['total' => $request->post('total')]);
     $order->save();
     foreach ($request->post('products') as $product) {
+        $quantity = $product['quantity'];
+        $to_use = $product['to_use'];
         $p = Product::find($product['id']);
-        $order->products()->attach([$p->id => ['quantity' => $product['quantity']]]);
+        $order->products()->attach([$p->id => ['quantity' => $quantity]]);
+        $p->stock -= $to_use;
+        $p->save();
     }
     DB::commit();
     return ['id' => $order->id];

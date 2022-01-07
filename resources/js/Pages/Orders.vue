@@ -153,9 +153,15 @@
             />
           </div>
           <div class="col-3">
-            <InputNumber v-model="product.quantity" class="w-100" />
+            <InputNumber
+              v-model="product.quantity"
+              @input="update_to_use($event.value, index)"
+              class="w-100"
+            />
           </div>
-          <div class="col-2"></div>
+          <div class="col-3">
+            <InputNumber v-model="product.to_use" class="w-100" />
+          </div>
         </div>
         <div class="row mt-4">
           <div class="col-auto ms-auto">
@@ -272,6 +278,12 @@ export default defineComponent({
       } catch (e) {
         console.log(e);
       }
+    },
+    update_to_use(value, index) {
+      this.new_order.products[index].to_use = value;
+    },
+    remove(index) {
+      this.new_order.products.splice(index, 1);
     },
     increment_products() {
       this.new_order.products.push({});
