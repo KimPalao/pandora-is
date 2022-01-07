@@ -72,7 +72,13 @@
               :href="route('resources')"
               :active="route().current('resources')"
             >
-              Resources 
+              Resources
+            </jet-nav-link>
+            <jet-nav-link
+              :href="route('orders')"
+              :active="route().current('orders')"
+            >
+              Orders
             </jet-nav-link>
             <jet-nav-link
               :href="route('query')"

@@ -39,6 +39,9 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/reports', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/sales', function () {
     return Inertia::render('Sales');
 })->name('sales');
+Route::middleware(['auth:sanctum', 'verified'])->get('/orders', function () {
+    return Inertia::render('Orders');
+})->name('orders');
 Route::middleware(['auth:sanctum', 'verified'])->get('/query', function () {
     return Inertia::render('Query');
 })->name('query');

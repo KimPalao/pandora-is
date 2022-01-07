@@ -3,6 +3,7 @@
 use App\Models\Bag;
 use App\Models\BagImage;
 use App\Models\BagMovement;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Resource;
@@ -186,6 +187,24 @@ Route::get('/sales', function (Request $request) {
         $s = json_decode($s, true);
         $field = '';
         if ($s['field'] === 'price' || $s['field'] === 'datetime') {
+            $field = $s['field'];
+        }
+        if (!$field) continue;
+        $query->orderBy($field, $s['order'] === 1 ? 'asc' : 'desc');
+    }
+    $data = ['count' => $query->count(), 'data' => $query->offset($offset)->limit($limit)->get()];
+    return $data;
+});
+Route::get('/orders', function (Request $request) {
+    $offset = $request->input('first', 0);
+    $limit = $request->input('rows', 10);
+    $query = Order::query()->with('products');
+    $filters = json_decode($request->input('filters'), true) ?? [];
+    $sort = $request->input('multiSortMeta', []);
+    foreach ($sort as $s) {
+        $s = json_decode($s, true);
+        $field = '';
+        if ($s['field'] === 'total' || $s['field'] === 'created_at') {
             $field = $s['field'];
         }
         if (!$field) continue;
