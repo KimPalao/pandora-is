@@ -213,6 +213,17 @@ Route::get('/orders', function (Request $request) {
     $data = ['count' => $query->count(), 'data' => $query->offset($offset)->limit($limit)->get()];
     return $data;
 });
+Route::post('orders', function (Request $request) {
+    DB::beginTransaction();
+    $order = new Order(['total' => $request->post('total')]);
+    $order->save();
+    foreach ($request->post('products') as $product) {
+        $p = Product::find($product['id']);
+        $order->products()->attach([$p->id => ['quantity' => $product['quantity']]]);
+    }
+    DB::commit();
+    return ['id' => $order->id];
+});
 Route::get('/sales/report', function (Request $request) {
     $start_date = $request->input('start_date');
     $end_date = $request->input('end_date') . ' 23:59:59';
