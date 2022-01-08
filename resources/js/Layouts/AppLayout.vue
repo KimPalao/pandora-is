@@ -15,7 +15,7 @@
       <div class="container">
         <!-- Logo -->
         <Link class="navbar-brand me-4" :href="route('dashboard')">
-          <jet-application-mark width="36" />
+          <jet-application-mark width="32" />
         </Link>
         <button
           class="navbar-toggler"
