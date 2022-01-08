@@ -33,6 +33,12 @@
           <!-- Left Side Of Navbar -->
           <ul class="navbar-nav me-auto">
             <jet-nav-link
+              :href="route('dashboard')"
+              :active="route().current('dashboard')"
+            >
+              Dashboard
+            </jet-nav-link>
+            <jet-nav-link
               :href="route('reports')"
               :active="route().current('reports')"
             >

@@ -437,3 +437,9 @@ Route::get('/products/most-sold', function (Request $request) {
     }
     return ['data' => $products];
 });
+Route::get('/products/low-on-stock', function (Request $request) {
+    return ['data' => Product::query()->orderBy('stock')->limit(10)->get()];
+});
+Route::get('/resources/low-on-stock', function (Request $request) {
+    return ['data' => Resource::query()->orderBy('stock')->limit(10)->get()];
+});
