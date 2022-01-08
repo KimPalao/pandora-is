@@ -293,7 +293,7 @@ export default defineComponent({
         this.submitting = true;
         const form_data = new FormData();
         form_data.append("name", this.entity_form.name);
-        form_data.append("price", this.entity_form.price);
+        form_data.append("unit", this.entity_form.unit);
         form_data.append("description", this.entity_form.description);
         form_data.append("stock", this.entity_form.stock);
         for (let image of this.new_images) {
