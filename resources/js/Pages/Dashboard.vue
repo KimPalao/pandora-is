@@ -9,7 +9,7 @@
         <div class="col-6">
           <div class="card shadow bg-light">
             <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
-              <h5 class="card-title">Products Low On Stock</h5>
+              <h5 class="card-title text-danger">Products Low On Stock</h5>
               <ol>
                 <li v-for="product in products" :key="`product-${product.id}`">
                   {{ product.name }} x {{ product.stock }}
@@ -22,7 +22,7 @@
         <div class="col-6">
           <div class="card shadow bg-light">
             <div class="card-body bg-white px-5 py-3 border-bottom rounded-top">
-              <h5 class="card-title">Resources Low On Stock</h5>
+              <h5 class="card-title text-danger">Resources Low On Stock</h5>
               <ol>
                 <li
                   v-for="resource in resources"
