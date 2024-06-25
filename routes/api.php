@@ -14,6 +14,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -264,25 +265,25 @@ Route::get('/sales/report', function (Request $request) {
     return ['data' => array_values($orders_report), 'labels' => array_keys($orders_report)];
 });
 Route::get('/resolve-products', function (Request $request) {
-    $ids = explode(',', $request->get('products'));
+    $product_ids = explode(',', $request->get('products'));
     $quantities = explode(',', $request->get('quantities'));
-    Log::info($ids);
-    Log::info($quantities);
     $resources = [];
     $products = [];
-    foreach ($ids as $index => $id) {
+    foreach ($product_ids as $index => $product_id) {
         $quantity = $quantities[$index];
-        $product = Product::find($id);
+        $product = Product::find($product_id);
         if (!$product) continue;
         $products[] = $product;
         foreach ($product->resources as $resource) {
             if (!array_key_exists($resource->id, $resources)) {
                 $resources[$resource->id] = [
                     'resource' => $resource,
-                    'quantity' => -$resource->stock
+                    'quantity' => -$resource->stock,
+                    'required' => 0,
                 ];
             }
             $resources[$resource->id]['quantity'] += (int)$quantity * $resource->pivot->quantity;
+            $resources[$resource->id]['required'] += (int)$quantity * $resource->pivot->quantity;
         }
     }
     foreach ($resources as $resource_id => $resource) {
@@ -382,7 +383,7 @@ Route::post('/resources', function (Request $request) {
     $resource->save();
     $images = $request->file('images');
     foreach ($images ?? [] as $index => $image) {
-        $path = $image->storeAs('img/products', "product-{$index}-{$resource->id}."  . $image->getClientOriginalExtension(), 'public');
+        $path = $image->storeAs('img/resources', "resource-{$index}-{$resource->id}."  . $image->getClientOriginalExtension(), 'public');
         $resource->images()->create([
             'name' => "{$resource->name} {$index}",
             'file_name' => $path,
@@ -416,7 +417,7 @@ Route::post('/products/{product}/update-stock/{stock}', function (Request $reque
 });
 Route::get('/resource/{resource}/image', function (Request $request, Resource $resource) {
     if ($resource->images->count() > 0) {
-        return response()->file(base_path(Resource::UPLOAD_PATH . DIRECTORY_SEPARATOR . $resource->images->first()->file_name));
+        return response()->file(Storage::path('public' . DIRECTORY_SEPARATOR . $resource->images->first()->file_name));
     }
     return response()->file(public_path('img/placeholder-200x200.jpg'));
 });
