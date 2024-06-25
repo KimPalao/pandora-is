@@ -43,7 +43,7 @@
                             <div class="row">
                                 <div class="card col-auto" style="width: 18rem" v-for="resource in resources"
                                     :key="resource.resource.id">
-                                    <img :src="`/api/resource/${resource.resource.id}/image`" class="card-img-top"
+                                    <img :src="`/api/resources/${resource.resource.id}/image`" class="card-img-top"
                                         style="width: 200px; height: 200px" />
                                     <div class="card-body">
                                         <h5 class="card-title">

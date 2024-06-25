@@ -161,7 +161,7 @@
                 <div class="row" v-for="(resource, index) in to_update_stock.resources"
                     :key="`to-update-resource-${index}`">
                     <div class="col-auto">
-                        <img :src="`/api/resource/${resource.id}/image`" alt="" style="width: 25px; height: 25px" />
+                        <img :src="`/api/resources/${resource.id}/image`" alt="" style="width: 25px; height: 25px" />
                     </div>
                     <div class="col-4">
                         {{ resource.name }} x {{ resource.pivot.quantity }}
