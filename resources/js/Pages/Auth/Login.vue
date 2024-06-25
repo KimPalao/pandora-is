@@ -49,7 +49,7 @@
             />
 
             <label class="custom-control-label" for="remember_me">
-              Remember Me
+              &nbsp;Remember Me
             </label>
           </div>
         </div>
